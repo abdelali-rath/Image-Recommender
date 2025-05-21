@@ -1,22 +1,76 @@
 # Project "Image Recommender"
 ## DAISY course 4th semester "Big Data Engineering"
-### Software:
 
-Functional requirements:
 
-The final Python software should be able to perform the following actions:
-Basic requirement (enough to pass the module):
+**Find the top-5 visually similar images using multiple metrics and fast indexing.**
 
-• For a single input image: Find the 5 best matching images from the provided dataset
-(about 500,000 images) based on at least three different similarity measures. The
-search should take no longer than a few seconds.
+## Table of Contents
+- [Overview](#overview)
+- [Features](#features)
+- [Repository Structure](#repository-structure)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Testing](#testing)
+- [Contributing](#contributing)
+- [License](#license)
 
-Additional requirements:
+## Overview
+This project implements an image similarity search system for over ~500k images.
 
-• Combine metrics:
-Find the 5 best matches just as before, but now with respect to 2-3 input images
-(instead of just one). You can also combine two different distance metrics if you
-want (optional).
+## Features
+- Color-based histogram similarity
+- Unit tests for all core components
 
-• Use an approximate nearest neighbor search algorithm (external library or own
-implementation?)
+## Repository Structure
+
+```
+image_recommender/
+├── image_recommender/
+│   ├── __init__.py
+│   ├── loader.py                       # Image loading generator
+│   ├── similarity_color.py             # Color histogram-based similarity
+│   ├── search_pipeline.py              # End-to-end search logic
+│   ├── database.py                     # SQL
+├── main.py
+├── config/
+│   └── default_config.yaml
+├── tests/
+│   ├── test.py
+├── profiling/
+│   ├── profiler.py
+├── environment.yml
+├── setup.py
+├── README.md
+├── LICENSE
+```
+
+## Installation
+```bash
+git clone https://github.com/abdelali-rath/image-recommender.git
+cd image-recommender
+python -m pip install
+# or on mac: python3 -m pip install
+```
+
+## Usage
+```
+python main.py
+```
+
+## Testing
+
+```
+pytest
+```
+
+## Contributing
+
+1. Fork the repo
+
+2. Create a feature branch
+
+3. Submit a pull request
+
+## License
+
+Distributed under the MIT License. See LICENSE for details.
