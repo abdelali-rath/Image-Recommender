@@ -27,11 +27,11 @@ This project implements an image similarity search system for over ~500k images.
 image_recommender/
 ├── image_recommender/
 │   ├── __init__.py
+│   ├── main.py
 │   ├── loader.py                       # Image loading generator
 │   ├── similarity_color.py             # Color histogram-based similarity
 │   ├── search_pipeline.py              # End-to-end search logic
 │   ├── database.py                     # SQL
-├── main.py
 ├── config/
 │   └── default_config.yaml
 ├── tests/
