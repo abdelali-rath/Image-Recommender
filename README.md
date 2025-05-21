@@ -2,7 +2,7 @@
 ## DAISY course 4th semester "Big Data Engineering"
 ### Software:
 
-Functional requirements
+Functional requirements:
 
 The final Python software should be able to perform the following actions:
 Basic requirement (enough to pass the module):
