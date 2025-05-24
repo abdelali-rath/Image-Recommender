@@ -25,23 +25,18 @@ This project implements an image similarity search system for over ~500k images.
 
 ```
 image_recommender/
+├── config/
+│   └── default_config.yaml
 ├── image_recommender/
 │   ├── __init__.py
 │   ├── main.py
 │   ├── loader.py                       # Image loading generator
-│   ├── similarity_color.py             # Color histogram-based similarity
-│   ├── search_pipeline.py              # End-to-end search logic
-│   ├── database.py                     # SQL
-├── config/
-│   └── default_config.yaml
+│   ├── hist_similarity.py              # Color histogram-based similarity
+│   ├── thumbnail_ingest.py              # Resizing to 64 x 64 and SQL database
 ├── tests/
 │   ├── test.py
-├── profiling/
-│   ├── profiler.py
-├── environment.yml
-├── setup.py
-├── README.md
 ├── LICENSE
+├── README.md
 ```
 
 ## Installation
