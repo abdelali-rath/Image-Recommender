@@ -17,6 +17,6 @@ def image_path_loader(root_dir, extensions=('jpg', 'jpeg', 'png', 'bmp', 'tiff')
 
 
 if __name__ == "__main__":
-    folder = r"C:\Users\meist\Downloads\random_pictures"        # Change path accordingly
+    folder = r"C:\Users\meist\Downloads\random_pictures"        
     for img_id, img_path in image_path_loader(folder):
         print(f"{img_id:4d}: {img_path}")
