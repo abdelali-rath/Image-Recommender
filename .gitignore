@@ -1,0 +1,60 @@
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Virtual environments
+env/
+venv/
+.venv/
+
+# Python packaging
+*.egg-info/
+dist/
+build/
+
+# Mac OS system files
+.DS_Store
+
+# Logs and temp files
+*.log
+*.tmp
+*.bak
+
+# Model files
+models/
+*.pt
+*.pth
+
+# Image index or cache files
+*.ann  # annoy index
+*.faiss
+
+# SQLite database (if generated locally)
+*.db
+
+# Archive files
+/*.zip
+/*.tar
+/*.tar.gz
+
+# VSCode / PyCharm / IDEs
+.vscode/
+.idea/
+
+# Tests outputs
+test_output/
+coverage/
+
+# Requirements cache
+pip-wheel-metadata/
+*.whl
+
+# Secrets (falls verwendet)
+.env
+*.key
+*.pem
