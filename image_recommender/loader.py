@@ -1,6 +1,11 @@
 import os
 import hashlib
 from PIL import Image
+import sys
+import os
+
+# Ensure the parent directory is in the system path for imports
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from image_recommender.database import create_table, insert_image_data
 
