@@ -2,10 +2,12 @@ import os
 import hashlib
 from PIL import Image
 
+from image_recommender.database import create_table, insert_image_data
+
 
 def load_image(path):
     """
-    Loads an image from disk and returns a PIL Image object.
+    Loads an image from disk and returns a PIL Image object in RGB format.
     """
     try:
         with Image.open(path) as img:
@@ -40,8 +42,12 @@ def generate_image_id(path):
     """
     return hashlib.sha256(path.encode("utf-8")).hexdigest()
 
+
 if __name__ == "__main__":
     dataset_path = "/Volumes/BigData06/data"
+
+    # Ensure the database table exists
+    create_table()
 
     count = 0
     for path in load_images_generator(dataset_path):
@@ -49,7 +55,12 @@ if __name__ == "__main__":
         if img:
             resized = preprocess_image(img)
             image_id = generate_image_id(path)
-            print(f"[{count}] ✅ {path} → ID: {image_id}")
+            width, height = resized.size
+
+            # Insert into the database
+            insert_image_data(image_id, path, width, height)
+
+            print(f"[{count}] ✅ Stored {path} → ID: {image_id}")
             count += 1
 
         if count >= 5:  # Test only the first 5 images
