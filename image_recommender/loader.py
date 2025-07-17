@@ -1,22 +1,56 @@
 import os
+import hashlib
 from PIL import Image
-import itertools
-from pathlib import Path
 
 
-def image_path_loader(root_dir, extensions=('jpg', 'jpeg', 'png', 'bmp', 'tiff')):
+def load_image(path):
+    """
+    Loads an image from disk and returns a PIL Image object.
+    """
+    try:
+        with Image.open(path) as img:
+            return img.convert("RGB")
+    except Exception as e:
+        print(f"❌ Error loading image {path}: {e}")
+        return None
 
-    id_counter = itertools.count(1)
-    root_path = Path(root_dir)
 
-    # rglob returns all matching file paths
-    for file_path in root_path.rglob('*'):
-        if file_path.is_file() \
-        and file_path.suffix.lower().lstrip('.') in extensions:
-            yield next(id_counter), str(file_path)
+def preprocess_image(image, size=(224, 224)):
+    """
+    Resize and normalize the image.
+    Returns a resized PIL image.
+    """
+    return image.resize(size)
 
+
+def load_images_generator(dataset_path, extensions={".jpg", ".jpeg", ".png"}):
+    """
+    Generator that yields valid image file paths from a directory (including subfolders).
+    """
+    for root, _, files in os.walk(dataset_path):
+        for file in files:
+            if any(file.lower().endswith(ext) for ext in extensions):
+                full_path = os.path.join(root, file)
+                yield full_path
+
+
+def generate_image_id(path):
+    """
+    Generates a unique ID based on the image path using SHA256.
+    """
+    return hashlib.sha256(path.encode("utf-8")).hexdigest()
 
 if __name__ == "__main__":
-    folder = r"C:\Users\meist\Downloads\random_pictures"        # Change path accordingly
-    for img_id, img_path in image_path_loader(folder):
-        print(f"{img_id:4d}: {img_path}")
+    dataset_path = "/Volumes/BigData06/data"
+
+    count = 0
+    for path in load_images_generator(dataset_path):
+        img = load_image(path)
+        if img:
+            resized = preprocess_image(img)
+            image_id = generate_image_id(path)
+            print(f"[{count}] ✅ {path} → ID: {image_id}")
+            count += 1
+
+        if count >= 5:  # Test only the first 5 images
+            break
