@@ -9,6 +9,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from image_recommender.database import create_table, insert_image_data
 
+MAX_IMAGES = None  # or e.g. 5000 for partial run
 
 def load_image(path):
     """
@@ -68,5 +69,6 @@ if __name__ == "__main__":
             print(f"[{count}] ✅ Stored {path} → ID: {image_id}")
             count += 1
 
-        if count >= 5:  # Test only the first 5 images
-            break
+            # Optional limit
+            if MAX_IMAGES is not None and count >= MAX_IMAGES:
+                break
