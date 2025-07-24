@@ -3,6 +3,7 @@ import os
 from collections import defaultdict
 
 from PIL import Image
+import numpy as np
 
 from image_recommender.loader import load_image, preprocess_image
 from image_recommender.similarity_embedding import compute_clip_embedding, load_annoy_index
@@ -25,7 +26,7 @@ def load_mapping(mapping_path):
 
 
 def combined_similarity_search(
-    input_path: str,
+    input_path,  # str or list of str
     clip_index_path: str,
     clip_mapping_path: str,
     k_clip: int = 20,
@@ -33,21 +34,37 @@ def combined_similarity_search(
 ):
     """
     Combines CLIP, histogram, and pHash similarities to find the best matches.
-    Returns list of (path, combined_score)
+    Supports one or multiple input images.
+
+    Returns: List of (path, combined_score)
     """
-    input_img = load_image(input_path)
-    if input_img is None:
-        print("❌ Could not load input image.")
+    # Handle single or multiple input images
+    if isinstance(input_path, str):
+        input_path = [input_path]
+
+    input_images = []
+    embeddings = []
+
+    for path in input_path:
+        img = load_image(path)
+        if img is None:
+            continue
+        img = preprocess_image(img)
+        input_images.append(img)
+        embeddings.append(compute_clip_embedding(img))
+
+    if not embeddings:
+        print("❌ Could not load any input image.")
         return []
 
-    input_img = preprocess_image(input_img)
+    # Average embedding vector
+    input_embedding = sum(embeddings) / len(embeddings)
 
     # Load CLIP index and mapping
     clip_index = load_annoy_index(clip_index_path)
     index_to_id = load_mapping(clip_mapping_path)
 
     # Get top-k CLIP neighbors with distances
-    input_embedding = compute_clip_embedding(input_img)
     clip_results, distances = clip_index.get_nns_by_vector(
         input_embedding.tolist(), k_clip, include_distances=True
     )
@@ -66,22 +83,34 @@ def combined_similarity_search(
             continue
         candidate_img = preprocess_image(candidate_img)
 
-        # Individual similarities
-        clip_sim = 1.0 - (clip_dist / 2.0)  # angular [0,2] -> similarity [1,0]
-        color_dist = image_color_similarity(input_img, candidate_img)
-        color_sim = 1.0 / (1.0 + color_dist)  # inverted L2
-        phash_dist = phash_similarity(input_img, candidate_img)
-        phash_sim = 1.0 / (1.0 + phash_dist)  # inverted Hamming
+        # CLIP similarity
+        clip_sim = 1.0 - (clip_dist / 2.0)  # angular [0,2] → similarity [1,0]
 
-        # Weighted combination
+        # Average color and pHash similarity across all query images
+        color_sims = []
+        phash_sims = []
+
+        for input_img in input_images:
+            color_dist = image_color_similarity(input_img, candidate_img)
+            color_sim = 1.0 / (1.0 + color_dist)
+
+            phash_dist = phash_similarity(input_img, candidate_img)
+            phash_sim = 1.0 / (1.0 + phash_dist)
+
+            color_sims.append(color_sim)
+            phash_sims.append(phash_sim)
+
+        avg_color_sim = sum(color_sims) / len(color_sims)
+        avg_phash_sim = sum(phash_sims) / len(phash_sims)
+
+        # Combined score
         combined = (
             WEIGHTS["clip"] * clip_sim +
-            WEIGHTS["color"] * color_sim +
-            WEIGHTS["phash"] * phash_sim
+            WEIGHTS["color"] * avg_color_sim +
+            WEIGHTS["phash"] * avg_phash_sim
         )
 
         scores.append((path, combined))
 
-    # Sort by combined score descending
     scores.sort(key=lambda x: x[1], reverse=True)
     return scores[:top_k_result]
