@@ -2,36 +2,49 @@ import matplotlib.pyplot as plt
 from PIL import Image
 
 
-def show_image_results(query_path: str, results: list, max_width=224):
+def show_image_results(query_paths, result_paths_with_scores):
     """
-    Displays the query image and its top results with scores.
-
-    Args:
-        query_path (str): Path to the input image
-        results (list): List of tuples (image_path, score)
-        max_width (int): Display width for each image
+    Displays input image(s) and top-k result images with similarity scores.
+    query_paths: str or list of str
+    result_paths_with_scores: list of (path, score)
     """
-    n = len(results) + 1  # query + results
+    if isinstance(query_paths, str):
+        query_paths = [query_paths]
 
-    fig, axes = plt.subplots(1, n, figsize=(n * 3, 4))
+    num_queries = len(query_paths)
+    top_k = len(result_paths_with_scores)
 
-    # Query image
-    query_img = Image.open(query_path).convert("RGB")
-    axes[0].imshow(query_img)
-    axes[0].set_title("Query", fontsize=10)
-    axes[0].axis("off")
+    fig, axes = plt.subplots(2, max(num_queries, top_k), figsize=(3 * max(num_queries, top_k), 6))
 
-    # Similar images
-    for i, (path, score) in enumerate(results):
+    # Plot query images
+    for i, path in enumerate(query_paths):
         try:
             img = Image.open(path).convert("RGB")
-            axes[i + 1].imshow(img)
-            axes[i + 1].set_title(f"{score:.3f}", fontsize=8)
-            axes[i + 1].axis("off")
+            axes[0, i].imshow(img)
+            axes[0, i].axis("off")
+            axes[0, i].set_title(f"Query {i+1}")
         except Exception as e:
-            print(f"❌ Error loading image: {path} – {e}")
-            axes[i + 1].axis("off")
-            axes[i + 1].set_title("Error")
+            axes[0, i].axis("off")
+            axes[0, i].set_title(f"Query {i+1} (Error)")
+
+    # Hide unused query axes if any
+    for j in range(len(query_paths), max(num_queries, top_k)):
+        axes[0, j].axis("off")
+
+    # Plot result images
+    for i, (path, score) in enumerate(result_paths_with_scores):
+        try:
+            img = Image.open(path).convert("RGB")
+            axes[1, i].imshow(img)
+            axes[1, i].axis("off")
+            axes[1, i].set_title(f"{score:.4f}")
+        except Exception as e:
+            axes[1, i].axis("off")
+            axes[1, i].set_title("Error")
+
+    # Hide unused result axes if any
+    for j in range(len(result_paths_with_scores), max(num_queries, top_k)):
+        axes[1, j].axis("off")
 
     plt.tight_layout()
     plt.show()
