@@ -1,60 +1,31 @@
 # Byte-compiled / cache
 __pycache__/
 *.py[cod]
-*.pyo
-*.pyd
 
-# Jupyter Notebook checkpoints
-.ipynb_checkpoints
-
-# Virtual environments
+# Python virtual environments
+.venv/
 env/
 venv/
-.venv/
 
-# Python packaging
-*.egg-info/
-dist/
-build/
+# Annoy + Faiss index files
+*.ann
+*.faiss
+index_to_id.json
 
-# Mac OS system files
-.DS_Store
+# SQLite DB (optional)
+*.db
 
-# Logs and temp files
-*.log
-*.tmp
-*.bak
-
-# Model files
-models/
+# Model checkpoints
 *.pt
 *.pth
 
-# Image index or cache files
-*.ann  # annoy index
-*.faiss
+# Logs / temp files
+*.log
+*.tmp
 
-# SQLite database (if generated locally)
-*.db
+# Mac system files
+.DS_Store
 
-# Archive files
-/*.zip
-/*.tar
-/*.tar.gz
-
-# VSCode / PyCharm / IDEs
+# VSCode / PyCharm
 .vscode/
 .idea/
-
-# Tests outputs
-test_output/
-coverage/
-
-# Requirements cache
-pip-wheel-metadata/
-*.whl
-
-# Secrets (falls verwendet)
-.env
-*.key
-*.pem
