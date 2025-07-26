@@ -1,8 +1,10 @@
+import os
 import sqlite3
 from typing import Optional, Tuple
 
-# Path to the local SQLite database file
-DB_PATH = "image_metadata.db"  # You can externalize this into config if needed
+# Absolute path to project root
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+DB_PATH = os.path.join(BASE_DIR, "data", "db", "image_metadata.db")
 
 
 def connect_db():
