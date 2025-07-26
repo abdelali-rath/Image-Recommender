@@ -6,7 +6,7 @@ from PIL import Image
 # Ensure the parent directory is in the system path for imports
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from database import create_table, insert_image_data
+from .database import create_table, insert_image_data
 
 MAX_IMAGES = 4  # or e.g. 5000 for partial run
 

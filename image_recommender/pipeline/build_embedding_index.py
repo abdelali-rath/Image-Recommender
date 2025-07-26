@@ -7,9 +7,16 @@ import sys
 # Add project root to import path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from image_recommender.database import connect_db
-from image_recommender.loader import load_image, preprocess_image
-from image_recommender.similarity_embedding import compute_clip_embedding, build_annoy_index, EMBEDDING_DIM
+from data.database import connect_db
+from data.loader import load_image, preprocess_image
+from similarity.similarity_embedding import compute_clip_embedding, build_annoy_index, EMBEDDING_DIM
+
+# Define base project directory (2 levels up from this file)
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+
+# Paths for output files
+index_out = os.path.join(BASE_DIR, "data", "out", "clip_index.ann")
+mapping_out = os.path.join(BASE_DIR, "data", "out", "index_to_id.json")
 
 
 def get_all_images_from_db():
@@ -62,8 +69,4 @@ def build_and_save_embeddings(index_path: str, mapping_path: str, max_images=Non
 
 
 if __name__ == "__main__":
-    # Output files
-    index_out = "clip_index.ann"
-    mapping_out = "index_to_id.json"
-
     build_and_save_embeddings(index_out, mapping_out)

@@ -6,9 +6,9 @@ from PIL import Image
 # Allow local imports
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from image_recommender.similarity_embedding import compute_clip_embedding, load_annoy_index, EMBEDDING_DIM
-from image_recommender.database import get_image_by_id
-from image_recommender.loader import load_image, preprocess_image
+from similarity.similarity_embedding import compute_clip_embedding, load_annoy_index, EMBEDDING_DIM
+from data.database import get_image_by_id
+from data.loader import load_image, preprocess_image
 
 
 def load_index_and_mapping(index_path: str, mapping_path: str):
