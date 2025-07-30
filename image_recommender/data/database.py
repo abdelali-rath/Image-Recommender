@@ -11,6 +11,7 @@ def connect_db():
     """
     Opens a connection to the SQLite database.
     """
+    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
     return sqlite3.connect(DB_PATH)
 
 

@@ -58,6 +58,9 @@ def build_and_save_embeddings(index_path: str, mapping_path: str, max_images=Non
         index.add_item(i, embedding.tolist())
         mapping[i] = image_id
 
+    os.makedirs(os.path.dirname(index_path), exist_ok=True)
+    os.makedirs(os.path.dirname(mapping_path), exist_ok=True)
+
     index.build(10)
     index.save(index_path)
 
