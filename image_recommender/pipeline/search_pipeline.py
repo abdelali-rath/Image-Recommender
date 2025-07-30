@@ -5,11 +5,11 @@ from collections import defaultdict
 from PIL import Image
 import numpy as np
 
-from data.loader import load_image, preprocess_image
-from similarity.similarity_embedding import compute_clip_embedding, load_annoy_index
-from similarity.hist_similarity import image_color_similarity
-from similarity.similarity_phash import phash_similarity
-from data.database import get_image_by_id
+from image_recommender.data.loader import load_image, preprocess_image
+from image_recommender.similarity.similarity_embedding import compute_clip_embedding, load_annoy_index
+from image_recommender.similarity.hist_similarity import image_color_similarity
+from image_recommender.similarity.similarity_phash import phash_similarity
+from image_recommender.data.database import get_image_by_id
 
 # Weights for combining scores (adjust as needed)
 WEIGHTS = {

@@ -1,6 +1,6 @@
 import argparse
-from image_recommender.search_pipeline import combined_similarity_search
-from image_recommender.visualize_results import show_image_results
+from image_recommender.pipeline.search_pipeline import combined_similarity_search
+from image_recommender.pipeline.visualize_results import show_image_results
 
 
 def main():
@@ -11,10 +11,10 @@ def main():
         "input_image", type=str, nargs="+", help="Path(s) to one or more input images"
     )
     parser.add_argument(
-        "--index", type=str, default="clip_index.ann", help="Path to Annoy index file"
+        "--index", type=str, default="image_recommender/data/out/clip_index.ann", help="Path to Annoy index file"
     )
     parser.add_argument(
-        "--mapping", type=str, default="index_to_id.json", help="Path to index-to-ID mapping file"
+        "--mapping", type=str, default="image_recommender/data/out/index_to_id.json", help="Path to index-to-ID mapping file"
     )
     parser.add_argument(
         "--topk", type=int, default=5, help="Number of results to return"
