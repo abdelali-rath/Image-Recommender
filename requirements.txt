@@ -1,0 +1,16 @@
+# Core packages
+numpy==1.24.3
+Pillow==11.3.0
+tqdm==4.65.0
+
+# Similarity measures
+ImageHash==4.3.2
+annoy==1.17.3
+
+# Deep Learning (CLIP)
+torch==2.3.0
+clip==1.0
+clip_anytorch==2.5.2
+
+# Visualization
+matplotlib==3.8.4
