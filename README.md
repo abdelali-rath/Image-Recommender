@@ -89,9 +89,9 @@ Image-Recommender/
 
 ```bash
 git clone https://github.com/abdelali-rath/Image-recommender.git
-cd image-recommender
+cd Image-recommender
 pip install -r requirements.txt
-````
+```
 
 ---
 
@@ -108,7 +108,7 @@ Run:
 
 ```bash
 python -m image_recommender.data.loader
-````
+```
 
 This will:
 
