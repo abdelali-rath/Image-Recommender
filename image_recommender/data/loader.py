@@ -8,7 +8,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from image_recommender.data.database import create_table, insert_image_data
 
-MAX_IMAGES = 4  # or e.g. 5000 for partial run
+MAX_IMAGES = None  # or e.g. 5000 for partial run
 
 def load_image(path):
     """
