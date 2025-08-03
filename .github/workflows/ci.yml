@@ -24,11 +24,13 @@ jobs:
         run: |
           python -m pip install --upgrade pip setuptools wheel
 
+      - name: Install CLIP library
+        run: |
+          pip install git+https://github.com/openai/CLIP.git
+
       - name: Install project dependencies
         run: |
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          # Install CLIP from GitHub since PyPI "clip==1.0" isn't available
-          pip install git+https://github.com/openai/CLIP.git
+          pip install -r requirements.txt
 
       - name: Run tests with coverage
         run: |
