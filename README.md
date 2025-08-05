@@ -6,8 +6,6 @@
 
 **Find the top-5 visually similar images using multiple metrics and fast vector indexing.**
 
----<img width="500" height="500" alt="Image Recommender (4)-modified" src="https://github.com/user-attachments/assets/81988c4d-d2c7-4b5d-9163-5a6e4de60e9e" />
-
 
 ## Table of Contents
 
