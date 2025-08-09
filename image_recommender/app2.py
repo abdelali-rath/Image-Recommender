@@ -6,23 +6,25 @@ import os
 
 from image_recommender.pipeline.search_pipeline import combined_similarity_search
 
-# Paths to your CLIP index and mapping
+# CLIP index and mapping PAths
 CLIP_INDEX_PATH = os.path.join('data', 'out', 'clip_index.ann')
 CLIP_MAPPING_PATH = os.path.join('data', 'out', 'index_to_id.json')
 
-# Path to your logo file (place logo.png at project root)
+# Logo
 LOGO_PATH = os.path.join(os.path.dirname(__file__), '..', 'logo.png')
 
-# Choose a light theme and white background
+# Theme
 sg.theme('LightGrey1')
 
-# Preload and resize logo for UI header (now larger)
+# Preload and resize logo for UI header
 logo_img = Image.open(LOGO_PATH)
 logo_img = logo_img.resize((150, 150), Image.LANCZOS)
 temp_logo = tempfile.NamedTemporaryFile(delete=False, suffix='.png')
 logo_img.save(temp_logo.name)
 
-# GUI layout
+
+# UI layout
+
 layout = [
     [sg.Push(),
      sg.Image(temp_logo.name, key='-HEADER_LOGO-'),
@@ -58,7 +60,7 @@ layout = [
         background_color='#ffffff'
     )],
     [sg.Text(
-        'Top 3 Results:',
+        'Top 5 Results:',
         font=('Helvetica', 20),
         pad=((0, 0), (10, 0)),
         background_color='#ffffff',
@@ -83,6 +85,7 @@ layout = [
      sg.Push()]
 ]
 
+
 # Create window with white background
 window = sg.Window(
     'Image Recommender',
@@ -94,13 +97,14 @@ window = sg.Window(
     margins=(20, 20)
 )
 
-# Maximize window to full screen
+
+# Maximize window
 try:
     window.Maximize()
 except Exception:
     pass
 
-# Set window icon via Tkinter for correct taskbar/icon scaling
+# Set window icon via Tkinter for correct taskbar/icon scaling (optional)
 try:
     tk_root = window.TKroot
     icon_img = Image.open(LOGO_PATH).resize((32, 32), Image.LANCZOS)
@@ -111,6 +115,7 @@ except Exception:
 
 # Track temp files for cleanup
 temp_files = [temp_logo.name]
+
 
 # Event loop
 while True:
@@ -134,7 +139,7 @@ while True:
                 query_path,
                 CLIP_INDEX_PATH,
                 CLIP_MAPPING_PATH,
-                top_k_result=3
+                top_k_result=5
             )
             # Update result images and scores
             for i, (path, score) in enumerate(results):
@@ -147,6 +152,7 @@ while True:
                 window[f'-SCORE{i}-'].update(f"Score: {score:.4f}")
         except Exception as e:
             sg.popup_error(f"Error processing image:\n{e}")
+
 
 # Cleanup and close
 window.close()
