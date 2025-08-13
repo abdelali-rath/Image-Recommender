@@ -37,6 +37,65 @@ def _resolve_index_and_mapping():
     return str(idx1), str(map1)
 
 
+# --- NEW: robust asset resolution for logo/background (keeps rest unchanged) ---
+try:
+    from importlib.resources import files as _ir_files  # Python 3.9+
+except Exception:
+    _ir_files = None
+
+def _resolve_assets():
+    here = Path(__file__).resolve()
+    pkg_root = here.parent
+    repo_root = pkg_root.parent
+
+    env_logo = os.getenv("APP_LOGO_PATH")
+    env_bg   = os.getenv("APP_BACKGROUND_PATH")
+
+    def _pkg_res(mod, name):
+        if _ir_files is None:
+            return None
+        try:
+            return str(_ir_files(mod) / name)
+        except Exception:
+            return None
+
+    def _first_existing(paths):
+        for p in paths:
+            if p and Path(p).exists():
+                return str(Path(p))
+        return ""
+
+    # Support both image_recommender/assets/... and image_recommender/assets/images/...
+    logo_candidates = [
+        env_logo,
+        _pkg_res("image_recommender.assets", "logo.png"),
+        _pkg_res("image_recommender.assets.images", "logo.png"),
+        pkg_root / "assets" / "logo.png",
+        pkg_root / "assets" / "images" / "logo.png",
+        repo_root / "assets" / "logo.png",
+        repo_root / "assets" / "images" / "logo.png",
+        repo_root / "logo.png",
+    ]
+    bg_candidates = [
+        env_bg,
+        _pkg_res("image_recommender.assets", "app_background.jpg"),
+        _pkg_res("image_recommender.assets.images", "app_background.jpg"),
+        _pkg_res("image_recommender.assets", "App_background.jpg"),
+        _pkg_res("image_recommender.assets.images", "App_background.jpg"),
+        pkg_root / "assets" / "app_background.jpg",
+        pkg_root / "assets" / "images" / "app_background.jpg",
+        pkg_root / "assets" / "App_background.jpg",
+        pkg_root / "assets" / "images" / "App_background.jpg",
+        repo_root / "assets" / "app_background.jpg",
+        repo_root / "assets" / "images" / "app_background.jpg",
+        repo_root / "App_background.jpg",
+        repo_root / "assets" / "images" / "App_background.jpg",
+    ]
+
+    return _first_existing(logo_candidates), _first_existing(bg_candidates)
+# --- END NEW ---
+
+
 class SearchThread(QThread):
 
     finished = pyqtSignal(list)
@@ -75,8 +134,7 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         # Assets and index, mapping paths
-        self.logo_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "logo.png"))
-        self.background_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "App_background.jpg"))
+        self.logo_path, self.background_path = _resolve_assets()  # CHANGED
         self.CLIP_INDEX_PATH, self.CLIP_MAPPING_PATH = _resolve_index_and_mapping()
 
         # Load background pixmap once
