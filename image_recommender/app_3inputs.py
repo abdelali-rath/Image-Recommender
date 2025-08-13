@@ -1,5 +1,6 @@
 import sys
 import os
+from pathlib import Path
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QWidget, QLabel, QPushButton, QLineEdit,
     QFileDialog, QVBoxLayout, QHBoxLayout, QGridLayout, QMessageBox
@@ -7,8 +8,33 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtGui import QPixmap, QFont, QIcon, QPainter
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, QTimer
 
+if __package__ is None and __name__ == "__main__":
+    sys.path.append(str(Path(__file__).resolve().parent.parent))
+
 from image_recommender.pipeline.search_pipeline import combined_similarity_search
 
+
+def _resolve_index_and_mapping():
+    here = Path(__file__).resolve()
+    pkg_root = here.parent
+    repo_root = pkg_root.parent
+
+    env_idx = os.getenv("CLIP_INDEX_PATH")
+    env_map = os.getenv("CLIP_MAPPING_PATH")
+    if env_idx and env_map and Path(env_idx).exists() and Path(env_map).exists():
+        return str(Path(env_idx)), str(Path(env_map))
+
+    cand1 = pkg_root / "data" / "out"
+    idx1, map1 = cand1 / "clip_index.ann", cand1 / "index_to_id.json"
+    if idx1.exists() and map1.exists():
+        return str(idx1), str(map1)
+
+    cand2 = repo_root / "data" / "out"
+    idx2, map2 = cand2 / "clip_index.ann", cand2 / "index_to_id.json"
+    if idx2.exists() and map2.exists():
+        return str(idx2), str(map2)
+
+    return str(idx1), str(map1)
 
 
 class SearchThread(QThread):
@@ -51,8 +77,7 @@ class MainWindow(QMainWindow):
         # Assets and index, mapping paths
         self.logo_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "logo.png"))
         self.background_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "App_background.jpg"))
-        self.CLIP_INDEX_PATH = os.path.abspath("data/out/clip_index.ann")
-        self.CLIP_MAPPING_PATH = os.path.abspath("data/out/index_to_id.json")
+        self.CLIP_INDEX_PATH, self.CLIP_MAPPING_PATH = _resolve_index_and_mapping()
 
         # Load background pixmap once
         self.bg_pixmap = QPixmap(self.background_path) if os.path.exists(self.background_path) else QPixmap()
