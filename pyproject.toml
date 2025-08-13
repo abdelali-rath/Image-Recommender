@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "image_recommender"
+version = "0.1.0"
+description = "Image similarity search with CLIP, histograms, and pHash."
+readme = { file = "README.md", content-type = "text/markdown" }
+requires-python = ">=3.10,<3.13"
+license = { text = "MIT" }
+authors = [
+  { name = "Aleem Hussain" },
+  { name = "Abdelali Oumachi" }
+]
+
+dependencies = [
+  "numpy>=1.24,<2.0",
+  "Pillow>=10.0,<12.0",
+  "tqdm>=4.65",
+  "ImageHash>=4.3.2",
+  "annoy>=1.17.3",
+  "torch>=2.3,<2.4",
+  "torchvision>=0.18,<0.19",
+  "ftfy>=6.1.0",
+  "regex>=2023.0.0",
+  "clip @ git+https://github.com/openai/CLIP.git@main",
+]
+
+# Optional command-line launcher: `image-recommender`
+[project.scripts]
+image-recommender = "image_recommender.app:main"
+
+[project.optional-dependencies]
+qt = ["PySide6>=6.6"]
+pyqt = ["PyQt5>=5.15,<6.0"]
+dev = ["build", "pytest", "ruff"]
+
+[project.urls]
+Homepage = "https://example.com"
+Source   = "https://example.com/repo"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["image_recommender*"]
+exclude = ["tests*", "tools*", "scripts*"]
+
+# Ensure non-Python files in assets/ are packaged
+[tool.setuptools.package-data]
+"image_recommender.assets" = ["**/*"]
+
+[tool.setuptools]
+include-package-data = true

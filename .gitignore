@@ -1,31 +1,78 @@
-# Byte-compiled / cache
+# --- Python bytecode / cache ---
 __pycache__/
 *.py[cod]
+*$py.class
 
-# Python virtual environments
+# --- Virtual environments / local python installs ---
 .venv/
-env/
 venv/
+env/
+.venv*/
+.conda/
+__pypackages__/
+.python-version
+.env
+.env.*
 
-# Annoy + Faiss index files
+# --- Build & packaging artifacts ---
+build/
+dist/
+*.egg-info/
+*.egg
+pip-wheel-metadata/
+*.manifest
+*.spec   # PyInstaller spec files
+
+# --- C/C++/Cython extension outputs (if any) ---
+*.so
+*.pyd
+*.dll
+*.dylib
+
+# --- Tests / coverage / tooling caches ---
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# --- Jupyter ---
+.ipynb_checkpoints/
+
+# --- Logs / temp ---
+*.log
+*.tmp
+*.temp
+tmp/
+temp/
+logs/
+
+# --- OS files ---
+.DS_Store
+Thumbs.db
+
+# --- IDE ---
+.vscode/
+.idea/
+
+# --- Project-specific generated data ---
 *.ann
 *.faiss
 index_to_id.json
 
-# SQLite DB (optional)
+# Keep only placeholders in out-dir; don't commit generated indexes
+data/out/*
+!data/out/.gitkeep
+!data/out/README.md
+
+# --- SQLite (optional) ---
 *.db
 
-# Model checkpoints
+# --- Model weights/checkpoints ---
 *.pt
 *.pth
-
-# Logs / temp files
-*.log
-*.tmp
-
-# Mac system files
-.DS_Store
-
-# VSCode / PyCharm
-.vscode/
-.idea/
