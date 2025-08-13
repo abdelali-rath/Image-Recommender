@@ -1,5 +1,5 @@
 # Core packages
-numpy==1.24.3
+numpy==1.26.4
 Pillow==11.3.0
 tqdm==4.65.0
 
@@ -9,8 +9,13 @@ annoy==1.17.3
 
 # Deep Learning (CLIP)
 torch==2.3.0
-clip==1.0
-clip_anytorch==2.5.2
+torchvision==0.18.0
+ftfy==6.3.1
+regex>=2023.0.0
+git+https://github.com/openai/CLIP.git@main#egg=clip
 
 # Visualization
 matplotlib==3.8.4
+
+# GUI
+PyQt5==5.15.10
