@@ -9,7 +9,10 @@ description = "Image similarity search with CLIP, histograms, and pHash."
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.10,<3.13"
 license = { text = "MIT" }
-authors = [{ name = "Aleem" }]
+authors = [
+  { name = "Aleem Hussain" },
+  { name = "Abdelali Oumachi" }
+]
 
 dependencies = [
   "numpy>=1.24,<2.0",
@@ -21,8 +24,7 @@ dependencies = [
   "torchvision>=0.18,<0.19",
   "ftfy>=6.1.0",
   "regex>=2023.0.0",
-  # Pin CLIP to a commit for reproducibility; replace <COMMIT_HASH> if desired
-  "clip @ git+https://github.com/openai/CLIP.git@<COMMIT_HASH>",
+  "clip @ git+https://github.com/openai/CLIP.git@main",
 ]
 
 # Optional command-line launcher: `image-recommender`
