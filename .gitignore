@@ -76,3 +76,13 @@ data/out/*
 # --- Model weights/checkpoints ---
 *.pt
 *.pth
+
+# --- Profiling outputs ---
+profiles/**
+!profiles/.gitkeep
+!profiles/README.md
+*.prof
+*.pyinstrument.html
+*.speedscope.json
+viztracer*.json
+scalene*.html
