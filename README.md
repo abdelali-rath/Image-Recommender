@@ -210,15 +210,9 @@ Optional CLI flags:
 * `--index`: path to Annoy index file (default: `image_recommender/data/out/clip_index.ann`)
 * `--mapping`: path to index-to-ID mapping file (default: `image_recommender/data/out/index_to_id.json`)
 
-### Using the installed command
-
-If you installed the package, you can also use:
-
-```bash
-image-recommender path/to/image.jpg --topk 10 --visualize
-```
-
 ---
+
+
 
 ## GUI Application
 
@@ -252,11 +246,35 @@ The project includes several development and benchmarking tools:
 ### Performance Profiling
 
 ```bash
-# Run performance profiling
-python -m image_recommender.tools.profiler
+# Run CPU performance profiling
+python -m image_recommender.tools.profiler \
+  --query path/to/query/image.jpg \
+  --index image_recommender/data/out/clip_index.ann \
+  --mapping image_recommender/data/out/index_to_id.json
 
-# Generate performance plots
-python -m image_recommender.tools.profile_plot
+# Run memory profiling
+python -m image_recommender.tools.profiler \
+  --query path/to/query/image.jpg \
+  --index image_recommender/data/out/clip_index.ann \
+  --mapping image_recommender/data/out/index_to_id.json \
+  --mode mem
+
+# Run PyTorch profiling (if torch is available)
+python -m image_recommender.tools.profiler \
+  --query path/to/query/image.jpg \
+  --index image_recommender/data/out/clip_index.ann \
+  --mapping image_recommender/data/out/index_to_id.json \
+  --mode torch
+
+# Plot an existing profiling file
+python -m image_recommender.tools.profile_plot --prof profiles/cpu_YYYYMMDD_HHMMSS.prof
+
+# Run fresh profiling and plot results
+python -m image_recommender.tools.profile_plot --run \
+  --query path/to/query/image.jpg \
+  --index image_recommender/data/out/clip_index.ann \
+  --mapping image_recommender/data/out/index_to_id.json \
+  --out profiles/performance_plot.png
 ```
 
 ### CLIP Benchmarking
@@ -266,7 +284,13 @@ python -m image_recommender.tools.profile_plot
 python -m image_recommender.tools.bench_clip_batch
 
 # Test CLIP caching performance
-python -m image_recommender.tools.bench_clip_cache
+python -m image_recommender.tools.bench_clip_cache --image path/to/test/image.jpg
+
+# Test CLIP caching with custom options
+python -m image_recommender.tools.bench_clip_cache \
+  --image path/to/test/image.jpg \
+  --repeats 10 \
+  --device cpu
 ```
 
 ---
