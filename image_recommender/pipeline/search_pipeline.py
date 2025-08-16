@@ -4,6 +4,8 @@ from collections import defaultdict
 
 from PIL import Image
 import numpy as np
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import multiprocessing
 
 from image_recommender.data.loader import load_image, preprocess_image
 from image_recommender.similarity.similarity_embedding import compute_clip_embedding, load_annoy_index
@@ -69,18 +71,21 @@ def combined_similarity_search(
         input_embedding.tolist(), k_clip, include_distances=True
     )
 
-    scores = []
-
+    # Prefetch candidate paths on main thread (avoid DB access in worker threads)
+    candidates = []
     for idx, clip_dist in zip(clip_results, distances):
         candidate_id = index_to_id[idx]
         db_entry = get_image_by_id(candidate_id)
         if not db_entry:
             continue
-
         path, width, height = db_entry
+        candidates.append((path, clip_dist))
+
+    # Parallel re-ranking (color + pHash) per candidate
+    def _score_candidate(path: str, clip_dist: float):
         candidate_img = load_image(path)
         if candidate_img is None:
-            continue
+            return None
         candidate_img = preprocess_image(candidate_img)
 
         # CLIP similarity
@@ -109,8 +114,17 @@ def combined_similarity_search(
             WEIGHTS["color"] * avg_color_sim +
             WEIGHTS["phash"] * avg_phash_sim
         )
+        return (path, combined)
 
-        scores.append((path, combined))
+    scores = []
+    if candidates:
+        max_workers = min(multiprocessing.cpu_count(), len(candidates))
+        with ThreadPoolExecutor(max_workers=max_workers or 1) as ex:
+            futs = [ex.submit(_score_candidate, path, dist) for path, dist in candidates]
+            for fut in as_completed(futs):
+                res = fut.result()
+                if res:
+                    scores.append(res)
 
     scores.sort(key=lambda x: x[1], reverse=True)
     return scores[:top_k_result]
