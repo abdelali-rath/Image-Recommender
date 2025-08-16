@@ -3,6 +3,7 @@ import torch
 import clip
 from PIL import Image
 from annoy import AnnoyIndex
+from typing import List
 
 
 # Set device: use GPU if available
@@ -78,3 +79,20 @@ def get_clip_model():
         _model_cache['model'], _model_cache['preprocess'] = clip.load("ViT-B/32", device=device)
         _model_cache['model'].eval()
     return _model_cache['model'], _model_cache['preprocess']
+
+def compute_clip_embeddings_batch(images: List[Image.Image]) -> torch.Tensor:
+    """
+    Compute normalized CLIP embeddings for a list of PIL images.
+    Returns a (N, EMBEDDING_DIM) float32 tensor on CPU.
+    """
+    if not images:
+        return torch.empty(0, EMBEDDING_DIM, dtype=torch.float32)
+
+    model, preprocess = get_clip_model()
+    dev = next(model.parameters()).device
+    batch_inputs = torch.stack([preprocess(img) for img in images]).to(dev)
+
+    with torch.inference_mode():
+        embeddings = model.encode_image(batch_inputs)
+        embeddings = embeddings / embeddings.norm(dim=-1, keepdim=True)
+    return embeddings.detach().cpu().to(torch.float32)
