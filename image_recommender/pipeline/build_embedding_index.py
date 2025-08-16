@@ -9,7 +9,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from data.database import connect_db
 from data.loader import load_image, preprocess_image
-from similarity.similarity_embedding import compute_clip_embedding, build_annoy_index, EMBEDDING_DIM
+from similarity.similarity_embedding import compute_clip_embedding, compute_clip_embeddings_batch, build_annoy_index, EMBEDDING_DIM
 
 # Define base project directory (2 levels up from this file)
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -17,6 +17,9 @@ BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 # Paths for output files
 index_out = os.path.join(BASE_DIR, "data", "out", "clip_index.ann")
 mapping_out = os.path.join(BASE_DIR, "data", "out", "index_to_id.json")
+
+# Batch size for embedding
+BATCH_SIZE = 64  # added
 
 
 def get_all_images_from_db():
@@ -48,15 +51,37 @@ def build_and_save_embeddings(index_path: str, mapping_path: str, max_images=Non
     index = AnnoyIndex(EMBEDDING_DIM, metric="angular")
     mapping = {}
 
-    for i, (image_id, path) in enumerate(tqdm(data, desc="Embedding images")):
+    # batch accumulation + flush
+    batch_imgs = []
+    batch_ids = []
+    i = 0  # running Annoy item index
+
+    def _flush_batch():
+        nonlocal i, batch_imgs, batch_ids
+        if not batch_imgs:
+            return
+        embs = compute_clip_embeddings_batch(batch_imgs).numpy()
+        for j in range(embs.shape[0]):
+            index.add_item(i, embs[j].tolist())
+            mapping[i] = batch_ids[j]
+            i += 1
+        batch_imgs.clear()
+        batch_ids.clear()
+
+    for image_id, path in tqdm(data, desc="Embedding images"):
         img = load_image(path)
         if img is None:
             continue
         img = preprocess_image(img)
 
-        embedding = compute_clip_embedding(img)
-        index.add_item(i, embedding.tolist())
-        mapping[i] = image_id
+        # use batch instead of per-image encode
+        batch_imgs.append(img)
+        batch_ids.append(image_id)
+        if len(batch_imgs) >= BATCH_SIZE:
+            _flush_batch()
+
+    # flush leftovers
+    _flush_batch()
 
     os.makedirs(os.path.dirname(index_path), exist_ok=True)
     os.makedirs(os.path.dirname(mapping_path), exist_ok=True)
