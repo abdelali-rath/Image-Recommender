@@ -5,14 +5,19 @@ import textwrap
 import matplotlib.pyplot as plt
 
 import sys
+
 if __package__ is None and __name__ == "__main__":
     sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 from image_recommender.pipeline.search_pipeline import combined_similarity_search
 
 
-def _plot_stats(stats: pstats.Stats, top: int = 25, title: str = "cProfile – Top functions",
-                out: str | None = None):
+def _plot_stats(
+    stats: pstats.Stats,
+    top: int = 25,
+    title: str = "cProfile – Top functions",
+    out: str | None = None,
+):
     # stats.stats: { (filename, lineno, funcname): (cc, nc, tt, ct, callers) }
     items = []
     for (filename, lineno, funcname), (cc, nc, tt, ct, callers) in stats.stats.items():
@@ -49,7 +54,9 @@ def _plot_stats(stats: pstats.Stats, top: int = 25, title: str = "cProfile – T
         plt.show()
 
 
-def _profile_run(query_paths, index_path, mapping_path, k_clip: int, top_k: int) -> pstats.Stats:
+def _profile_run(
+    query_paths, index_path, mapping_path, k_clip: int, top_k: int
+) -> pstats.Stats:
     pr = cProfile.Profile()
     pr.enable()
     _ = combined_similarity_search(
@@ -67,11 +74,20 @@ def parse_args():
     ap = argparse.ArgumentParser(description="Plot cProfile results with matplotlib.")
     mode = ap.add_mutually_exclusive_group(required=True)
     mode.add_argument("--prof", help="Path to an existing .prof file to visualize")
-    mode.add_argument("--run", action="store_true", help="Profile a fresh run of the pipeline")
+    mode.add_argument(
+        "--run", action="store_true", help="Profile a fresh run of the pipeline"
+    )
 
-    ap.add_argument("--query", "-q", nargs="+", help="One or more query image paths (required for --run)")
+    ap.add_argument(
+        "--query",
+        "-q",
+        nargs="+",
+        help="One or more query image paths (required for --run)",
+    )
     ap.add_argument("--index", "-i", help="clip_index.ann path (required for --run)")
-    ap.add_argument("--mapping", "-m", help="index_to_id.json path (required for --run)")
+    ap.add_argument(
+        "--mapping", "-m", help="index_to_id.json path (required for --run)"
+    )
     ap.add_argument("--k-clip", type=int, default=20)
     ap.add_argument("--top-k", type=int, default=5)
     ap.add_argument("--top", type=int, default=25, help="How many functions to show")

@@ -6,7 +6,11 @@ from PIL import Image
 # Allow local imports
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from similarity.similarity_embedding import compute_clip_embedding, load_annoy_index, EMBEDDING_DIM
+from similarity.similarity_embedding import (
+    compute_clip_embedding,
+    load_annoy_index,
+    EMBEDDING_DIM,
+)
 from data.database import get_image_by_id
 from data.loader import load_image, preprocess_image
 
@@ -38,7 +42,9 @@ def find_top_k_similar(image_path: str, index_path: str, mapping_path: str, k: i
 
     index, id_map = load_index_and_mapping(index_path, mapping_path)
 
-    nearest_idxs, distances = index.get_nns_by_vector(embedding.tolist(), k, include_distances=True)
+    nearest_idxs, distances = index.get_nns_by_vector(
+        embedding.tolist(), k, include_distances=True
+    )
 
     print(f"\n🔍 Top-{k} similar images to {image_path}:\n")
     for rank, (i, dist) in enumerate(zip(nearest_idxs, distances), 1):

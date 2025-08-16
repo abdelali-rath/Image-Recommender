@@ -10,6 +10,7 @@ from image_recommender.data.database import create_table, insert_image_data
 
 MAX_IMAGES = None  # or e.g. 5000 for partial run
 
+
 def load_image(path):
     """
     Loads an image from disk and returns a PIL Image object in RGB format.

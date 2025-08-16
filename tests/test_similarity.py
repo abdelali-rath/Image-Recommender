@@ -3,18 +3,22 @@ import pytest
 from PIL import Image
 
 from image_recommender.similarity.hist_similarity import (
-    compute_histogram, image_color_similarity
+    compute_histogram,
+    image_color_similarity,
 )
 from image_recommender.similarity.similarity_phash import (
-    compute_phash, phash_similarity
+    compute_phash,
+    phash_similarity,
 )
 from image_recommender.similarity.similarity_embedding import (
-    build_annoy_index, load_annoy_index, EMBEDDING_DIM
+    build_annoy_index,
+    load_annoy_index,
+    EMBEDDING_DIM,
 )
 
 
 def create_solid_image(color, size=(16, 16)):
-    return Image.new('RGB', size, color)
+    return Image.new("RGB", size, color)
 
 
 def test_compute_histogram_and_color():
@@ -24,7 +28,9 @@ def test_compute_histogram_and_color():
     hist = compute_histogram(img_black, bins=4)
     assert hist.shape == (12,)
     # Identical images -> zero distance
-    assert image_color_similarity(img_black, img_black, bins=4) == pytest.approx(0.0, abs=1e-6)
+    assert image_color_similarity(img_black, img_black, bins=4) == pytest.approx(
+        0.0, abs=1e-6
+    )
     # Black vs white yields >0 distance
     assert image_color_similarity(img_black, img_white, bins=4) > 0
 

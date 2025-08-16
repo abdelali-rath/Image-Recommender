@@ -2,9 +2,23 @@ import sys
 import os
 from pathlib import Path
 from PyQt5.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QLabel, QPushButton, QLineEdit,
-    QFileDialog, QVBoxLayout, QHBoxLayout, QGridLayout, QMessageBox,
-    QSpinBox, QProgressBar, QAction, QMenu, QToolTip, QFrame
+    QApplication,
+    QMainWindow,
+    QWidget,
+    QLabel,
+    QPushButton,
+    QLineEdit,
+    QFileDialog,
+    QVBoxLayout,
+    QHBoxLayout,
+    QGridLayout,
+    QMessageBox,
+    QSpinBox,
+    QProgressBar,
+    QAction,
+    QMenu,
+    QToolTip,
+    QFrame,
 )
 from PyQt5.QtGui import QPixmap, QFont, QIcon, QPainter, QDesktopServices
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, QTimer, QUrl, QSettings, QSize
@@ -16,6 +30,7 @@ if __package__ is None and __name__ == "__main__":
 from image_recommender.pipeline.search_pipeline import combined_similarity_search
 
 # ----------------------- Index/Mapping & Assets resolution -----------------------
+
 
 def _resolve_index_and_mapping():
     here = Path(__file__).resolve()
@@ -40,10 +55,12 @@ def _resolve_index_and_mapping():
     # fallback to package path even if missing (UI will warn)
     return str(idx1), str(map1)
 
+
 try:
     from importlib.resources import files as _ir_files  # Python 3.9+
 except Exception:
     _ir_files = None
+
 
 def _resolve_assets():
     here = Path(__file__).resolve()
@@ -51,7 +68,7 @@ def _resolve_assets():
     repo_root = pkg_root.parent
 
     env_logo = os.getenv("APP_LOGO_PATH")
-    env_bg   = os.getenv("APP_BACKGROUND_PATH")
+    env_bg = os.getenv("APP_BACKGROUND_PATH")
 
     def _pkg_res(mod, name):
         if _ir_files is None:
@@ -95,25 +112,32 @@ def _resolve_assets():
 
     return _first_existing(logo_candidates), _first_existing(bg_candidates)
 
+
 # ----------------------- Small helpers -----------------------
 
 IMG_EXTS = (".png", ".jpg", ".jpeg", ".bmp", ".webp")
 
+
 def is_image(path: str) -> bool:
     return str(path).lower().endswith(IMG_EXTS)
+
 
 def human_score(score: float) -> str:
     # Adjust if your scores are similarity (higher=better) or distance (lower=better)
     return f"{score:.4f}"
 
+
 # ----------------------- Custom widgets -----------------------
+
 
 class ClickableLabel(QLabel):
     clicked = pyqtSignal()
+
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.LeftButton:
             self.clicked.emit()
         super().mouseReleaseEvent(event)
+
 
 class DropLineEdit(QLineEdit):
     fileDropped = pyqtSignal(str)
@@ -143,8 +167,10 @@ class DropLineEdit(QLineEdit):
                     self.fileDropped.emit(p)
                     break
 
+
 class DropBox(QFrame):
     """Bordered drop area with optional click-to-open dialog; no hint text by default."""
+
     fileSelected = pyqtSignal(str)
 
     def __init__(self, size=QSize(220, 220), hint=None):
@@ -184,7 +210,9 @@ class DropBox(QFrame):
         if not pix.isNull():
             self._pix = pix
             inner = QSize(max(10, self.width() - 24), max(10, self.height() - 24))
-            self._thumb.setPixmap(pix.scaled(inner, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+            self._thumb.setPixmap(
+                pix.scaled(inner, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            )
         else:
             self.reset()
 
@@ -220,21 +248,24 @@ class DropBox(QFrame):
     def mouseReleaseEvent(self, e):
         if e.button() == Qt.LeftButton:
             path, _ = QFileDialog.getOpenFileName(
-                self, "Select image", "",
-                "Images (*.png *.jpg *.jpeg *.bmp *.webp)"
+                self, "Select image", "", "Images (*.png *.jpg *.jpeg *.bmp *.webp)"
             )
             if path:
                 self.setImage(path)
                 self.fileSelected.emit(path)
         super().mouseReleaseEvent(e)
 
+
 # ----------------------- Worker thread -----------------------
+
 
 class SearchThread(QThread):
     finished = pyqtSignal(list)
     error = pyqtSignal(str)
 
-    def __init__(self, query_paths, index_path, mapping_path, k_clip=20, top_k_result=5):
+    def __init__(
+        self, query_paths, index_path, mapping_path, k_clip=20, top_k_result=5
+    ):
         super().__init__()
         self.query_paths = query_paths
         self.index_path = index_path
@@ -249,13 +280,15 @@ class SearchThread(QThread):
                 clip_index_path=self.index_path,
                 clip_mapping_path=self.mapping_path,
                 k_clip=self.k_clip,
-                top_k_result=self.top_k_result
+                top_k_result=self.top_k_result,
             )
             self.finished.emit(results)
         except Exception as e:
             self.error.emit(str(e))
 
+
 # ----------------------- Main Window -----------------------
+
 
 class MainWindow(QMainWindow):
     MAX_INPUTS = 3
@@ -275,11 +308,15 @@ class MainWindow(QMainWindow):
 
         # UI state
         self.bg_enabled = True
-        self.bg_pixmap = QPixmap(self.background_path) if os.path.exists(self.background_path) else QPixmap()
-        self.input_widgets = []            # (line_edit, browse_btn, dropbox)
-        self.result_widgets = []           # (img_label, score_label, path)
+        self.bg_pixmap = (
+            QPixmap(self.background_path)
+            if os.path.exists(self.background_path)
+            else QPixmap()
+        )
+        self.input_widgets = []  # (line_edit, browse_btn, dropbox)
+        self.result_widgets = []  # (img_label, score_label, path)
         self.search_thread = None
-        self.discard_next_finish = False   # for cancel UX
+        self.discard_next_finish = False  # for cancel UX
 
         self._setup_ui()
         self._setup_menu()
@@ -303,7 +340,9 @@ class MainWindow(QMainWindow):
         header = QHBoxLayout()
         logo_lbl = QLabel()
         if os.path.exists(self.logo_path):
-            logo_pix = QPixmap(self.logo_path).scaled(120, 120, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            logo_pix = QPixmap(self.logo_path).scaled(
+                120, 120, Qt.KeepAspectRatio, Qt.SmoothTransformation
+            )
             logo_lbl.setPixmap(logo_pix)
         header.addStretch()
         header.addWidget(logo_lbl)
@@ -325,9 +364,13 @@ class MainWindow(QMainWindow):
             path_row = QHBoxLayout()
 
             path_edit = DropLineEdit()
-            path_edit.setPlaceholderText(f"Image {i+1} (optional) – drag & drop or Browse")
+            path_edit.setPlaceholderText(
+                f"Image {i + 1} (optional) – drag & drop or Browse"
+            )
             path_edit.setFixedWidth(300)
-            path_edit.fileDropped.connect(lambda p, idx=i: self._on_dropbox_selected(idx, p))
+            path_edit.fileDropped.connect(
+                lambda p, idx=i: self._on_dropbox_selected(idx, p)
+            )
 
             browse_btn = QPushButton("Browse")
             browse_btn.clicked.connect(lambda _, idx=i: self.on_browse(idx))
@@ -342,7 +385,9 @@ class MainWindow(QMainWindow):
             path_row.addWidget(clear_btn)
 
             drop = DropBox(size=QSize(220, 220))  # no hint text
-            drop.fileSelected.connect(lambda p, idx=i: self._on_dropbox_selected(idx, p))
+            drop.fileSelected.connect(
+                lambda p, idx=i: self._on_dropbox_selected(idx, p)
+            )
 
             col.addLayout(path_row)
             col.addSpacing(6)
@@ -493,7 +538,9 @@ class MainWindow(QMainWindow):
     def paintEvent(self, event):
         if self.bg_enabled and not self.bg_pixmap.isNull():
             painter = QPainter(self)
-            scaled = self.bg_pixmap.scaled(self.size(), Qt.KeepAspectRatioByExpanding, Qt.SmoothTransformation)
+            scaled = self.bg_pixmap.scaled(
+                self.size(), Qt.KeepAspectRatioByExpanding, Qt.SmoothTransformation
+            )
             x = (self.width() - scaled.width()) // 2
             y = (self.height() - scaled.height()) // 2
             painter.drawPixmap(x, y, scaled)
@@ -543,19 +590,25 @@ class MainWindow(QMainWindow):
                     QMessageBox.warning(self, "Invalid file", f"File not found:\n{p}")
                     return
                 if not is_image(p):
-                    QMessageBox.warning(self, "Invalid image", f"Not an image file:\n{p}")
+                    QMessageBox.warning(
+                        self, "Invalid image", f"Not an image file:\n{p}"
+                    )
                     return
                 paths.append(p)
 
         if not paths:
-            QMessageBox.warning(self, "No images", "Please provide at least one input image (1–3).")
+            QMessageBox.warning(
+                self, "No images", "Please provide at least one input image (1–3)."
+            )
             return
 
-        if not os.path.exists(self.CLIP_INDEX_PATH) or not os.path.exists(self.CLIP_MAPPING_PATH):
+        if not os.path.exists(self.CLIP_INDEX_PATH) or not os.path.exists(
+            self.CLIP_MAPPING_PATH
+        ):
             QMessageBox.warning(
                 self,
                 "Missing index/mapping",
-                f"Could not find index or mapping files:\n{self.CLIP_INDEX_PATH}\n{self.CLIP_MAPPING_PATH}"
+                f"Could not find index or mapping files:\n{self.CLIP_INDEX_PATH}\n{self.CLIP_MAPPING_PATH}",
             )
             return
 
@@ -577,7 +630,7 @@ class MainWindow(QMainWindow):
             index_path=self.CLIP_INDEX_PATH,
             mapping_path=self.CLIP_MAPPING_PATH,
             k_clip=k_clip,
-            top_k_result=top_k
+            top_k_result=top_k,
         )
         self.search_thread.finished.connect(self.on_search_finished)
         self.search_thread.error.connect(self.on_search_error)
@@ -622,7 +675,11 @@ class MainWindow(QMainWindow):
             if os.path.exists(path):
                 pix = QPixmap(path)
                 if not pix.isNull():
-                    img_lbl.setPixmap(pix.scaled(img_lbl.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation))
+                    img_lbl.setPixmap(
+                        pix.scaled(
+                            img_lbl.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation
+                        )
+                    )
             base = os.path.basename(path)
             score_lbl.setText(f"{base}\n{human_score(score)}")
             score_lbl.setToolTip(path)
@@ -652,21 +709,37 @@ class MainWindow(QMainWindow):
         if path and os.path.exists(path):
             QDesktopServices.openUrl(QUrl.fromLocalFile(path))
         else:
-            QToolTip.showText(self.mapToGlobal(self.rect().center()), "No result here yet")
+            QToolTip.showText(
+                self.mapToGlobal(self.rect().center()), "No result here yet"
+            )
 
     # ----------- Menu actions -----------
 
     def _choose_index(self):
-        start_dir = str(Path(self.CLIP_INDEX_PATH).parent) if self.CLIP_INDEX_PATH else ""
-        path, _ = QFileDialog.getOpenFileName(self, "Select CLIP index (.ann)", start_dir, "ANN files (*.ann);;All files (*)")
+        start_dir = (
+            str(Path(self.CLIP_INDEX_PATH).parent) if self.CLIP_INDEX_PATH else ""
+        )
+        path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Select CLIP index (.ann)",
+            start_dir,
+            "ANN files (*.ann);;All files (*)",
+        )
         if path:
             self.CLIP_INDEX_PATH = path
             self.settings.setValue("index_path", path)
             self.statusBar().showMessage(f"Index set: {path}", 4000)
 
     def _choose_mapping(self):
-        start_dir = str(Path(self.CLIP_MAPPING_PATH).parent) if self.CLIP_MAPPING_PATH else ""
-        path, _ = QFileDialog.getOpenFileName(self, "Select mapping (index_to_id.json)", start_dir, "JSON files (*.json);;All files (*)")
+        start_dir = (
+            str(Path(self.CLIP_MAPPING_PATH).parent) if self.CLIP_MAPPING_PATH else ""
+        )
+        path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Select mapping (index_to_id.json)",
+            start_dir,
+            "JSON files (*.json);;All files (*)",
+        )
         if path:
             self.CLIP_MAPPING_PATH = path
             self.settings.setValue("mapping_path", path)
@@ -684,10 +757,12 @@ class MainWindow(QMainWindow):
             "• Drag & drop boxes\n"
             "• Adjustable k_clip & Top-K\n"
             "• Remembers your settings\n\n"
-            "© 2025"
+            "© 2025",
         )
 
+
 # ----------------------- App entry -----------------------
+
 
 def main():
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
@@ -696,6 +771,7 @@ def main():
     win.show()
     QTimer.singleShot(0, win.showMaximized)
     sys.exit(app.exec_())
+
 
 if __name__ == "__main__":
     main()

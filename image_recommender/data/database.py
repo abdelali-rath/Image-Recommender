@@ -25,14 +25,16 @@ def create_table():
     """
     with connect_db() as conn:
         cursor = conn.cursor()
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS images (
                 id TEXT PRIMARY KEY,
                 path TEXT NOT NULL,
                 width INTEGER,
                 height INTEGER
             );
-        """)
+        """
+        )
         conn.commit()
 
 
@@ -49,10 +51,13 @@ def insert_image_data(image_id: str, path: str, width: int, height: int):
     """
     with connect_db() as conn:
         cursor = conn.cursor()
-        cursor.execute("""
+        cursor.execute(
+            """
             INSERT OR IGNORE INTO images (id, path, width, height)
             VALUES (?, ?, ?, ?);
-        """, (image_id, path, width, height))
+        """,
+            (image_id, path, width, height),
+        )
         conn.commit()
 
 
@@ -68,7 +73,10 @@ def get_image_by_id(image_id: str) -> Optional[Tuple[str, int, int]]:
     """
     with connect_db() as conn:
         cursor = conn.cursor()
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT path, width, height FROM images WHERE id = ?;
-        """, (image_id,))
+        """,
+            (image_id,),
+        )
         return cursor.fetchone()

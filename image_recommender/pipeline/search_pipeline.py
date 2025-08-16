@@ -9,17 +9,16 @@ import multiprocessing
 from heapq import heappush, heappushpop, nlargest
 
 from image_recommender.data.loader import load_image, preprocess_image
-from image_recommender.similarity.similarity_embedding import compute_clip_embedding, load_annoy_index
+from image_recommender.similarity.similarity_embedding import (
+    compute_clip_embedding,
+    load_annoy_index,
+)
 from image_recommender.similarity.hist_similarity import image_color_similarity
 from image_recommender.similarity.similarity_phash import phash_similarity
 from image_recommender.data.database import get_image_by_id
 
 # Weights for combining scores (adjust as needed)
-WEIGHTS = {
-    "clip": 0.5,
-    "color": 0.3,
-    "phash": 0.2
-}
+WEIGHTS = {"clip": 0.5, "color": 0.3, "phash": 0.2}
 
 # Early termination toggle + chunking (kept internal; no signature change)
 _EARLY_TERMINATION = True
@@ -37,7 +36,7 @@ def combined_similarity_search(
     clip_index_path: str,
     clip_mapping_path: str,
     k_clip: int = 20,
-    top_k_result: int = 5
+    top_k_result: int = 5,
 ):
     """
     Combines CLIP, histogram, and pHash similarities to find the best matches.
@@ -120,9 +119,9 @@ def combined_similarity_search(
 
         # Combined score
         combined = (
-            WEIGHTS["clip"] * clip_sim_local +
-            WEIGHTS["color"] * avg_color_sim +
-            WEIGHTS["phash"] * avg_phash_sim
+            WEIGHTS["clip"] * clip_sim_local
+            + WEIGHTS["color"] * avg_color_sim
+            + WEIGHTS["phash"] * avg_phash_sim
         )
         return (path, combined)
 
@@ -133,10 +132,13 @@ def combined_similarity_search(
 
         i = 0
         while i < len(candidates):
-            chunk = candidates[i:i + chunk_size]
+            chunk = candidates[i : i + chunk_size]
 
             with ThreadPoolExecutor(max_workers=max_workers) as ex:
-                futs = [ex.submit(_score_candidate, path, dist) for (path, dist, _sim) in chunk]
+                futs = [
+                    ex.submit(_score_candidate, path, dist)
+                    for (path, dist, _sim) in chunk
+                ]
                 for fut in as_completed(futs):
                     res = fut.result()
                     if not res:
@@ -150,14 +152,18 @@ def combined_similarity_search(
             i += len(chunk)
 
             # Early termination check (only if we already filled top-k)
-            if _EARLY_TERMINATION and len(scores_heap) >= top_k_result and i < len(candidates):
+            if (
+                _EARLY_TERMINATION
+                and len(scores_heap) >= top_k_result
+                and i < len(candidates)
+            ):
                 # Upper bound for any remaining candidate:
                 # assume color=1 and phash=1 (best possible), with next candidate's clip_sim.
                 next_clip_sim = candidates[i][2]
                 upper_bound = (
-                    WEIGHTS["clip"] * next_clip_sim +
-                    WEIGHTS["color"] * 1.0 +
-                    WEIGHTS["phash"] * 1.0
+                    WEIGHTS["clip"] * next_clip_sim
+                    + WEIGHTS["color"] * 1.0
+                    + WEIGHTS["phash"] * 1.0
                 )
                 worst_in_topk = scores_heap[0][0]  # min in heap
                 if upper_bound <= worst_in_topk:

@@ -9,6 +9,7 @@ from image_recommender.similarity.similarity_embedding import (
     get_clip_model,
 )
 
+
 def make_imgs():
     return [
         Image.new("RGB", (96, 96), (255, 0, 0)),
@@ -16,14 +17,17 @@ def make_imgs():
         Image.new("RGB", (96, 96), (0, 0, 255)),
     ]
 
+
 def test_batch_shape_and_dtype():
     embs = compute_clip_embeddings_batch(make_imgs())
     assert embs.shape == (3, EMBEDDING_DIM)
     assert embs.dtype == torch.float32
 
+
 def test_empty_batch():
     embs = compute_clip_embeddings_batch([])
     assert embs.shape == (0, EMBEDDING_DIM)
+
 
 def test_batch_matches_single():
     imgs = make_imgs()
@@ -32,6 +36,7 @@ def test_batch_matches_single():
     batch = compute_clip_embeddings_batch(imgs).numpy()
     for i in range(len(imgs)):
         assert np.allclose(singles[i], batch[i], atol=1e-6, rtol=1e-6)
+
 
 def test_norm_is_one():
     embs = compute_clip_embeddings_batch(make_imgs()).numpy()

@@ -11,10 +11,16 @@ def main():
         "input_image", type=str, nargs="+", help="Path(s) to one or more input images"
     )
     parser.add_argument(
-        "--index", type=str, default="image_recommender/data/out/clip_index.ann", help="Path to Annoy index file"
+        "--index",
+        type=str,
+        default="image_recommender/data/out/clip_index.ann",
+        help="Path to Annoy index file",
     )
     parser.add_argument(
-        "--mapping", type=str, default="image_recommender/data/out/index_to_id.json", help="Path to index-to-ID mapping file"
+        "--mapping",
+        type=str,
+        default="image_recommender/data/out/index_to_id.json",
+        help="Path to index-to-ID mapping file",
     )
     parser.add_argument(
         "--topk", type=int, default=5, help="Number of results to return"
@@ -33,10 +39,12 @@ def main():
         clip_index_path=args.index,
         clip_mapping_path=args.mapping,
         k_clip=args.clipk,
-        top_k_result=args.topk
+        top_k_result=args.topk,
     )
 
-    print(f"\n🔍 Top {args.topk} similar images for:", ", ".join(args.input_image), "\n")
+    print(
+        f"\n🔍 Top {args.topk} similar images for:", ", ".join(args.input_image), "\n"
+    )
     for rank, (path, score) in enumerate(results, 1):
         print(f"{rank}. {score:.4f} → {path}")
 

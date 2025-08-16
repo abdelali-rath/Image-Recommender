@@ -9,7 +9,12 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from data.database import connect_db
 from data.loader import load_image, preprocess_image
-from similarity.similarity_embedding import compute_clip_embedding, compute_clip_embeddings_batch, build_annoy_index, EMBEDDING_DIM
+from similarity.similarity_embedding import (
+    compute_clip_embedding,
+    compute_clip_embeddings_batch,
+    build_annoy_index,
+    EMBEDDING_DIM,
+)
 
 # Define base project directory (2 levels up from this file)
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -48,6 +53,7 @@ def build_and_save_embeddings(index_path: str, mapping_path: str, max_images=Non
     print(f"🧠 Processing {len(data)} images (CLIP Embeddings)...")
 
     from annoy import AnnoyIndex
+
     index = AnnoyIndex(EMBEDDING_DIM, metric="angular")
     mapping = {}
 

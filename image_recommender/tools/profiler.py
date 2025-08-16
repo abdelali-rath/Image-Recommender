@@ -14,7 +14,12 @@ except Exception:
 
 try:
     import torch
-    from torch.profiler import profile, ProfilerActivity, schedule, tensorboard_trace_handler
+    from torch.profiler import (
+        profile,
+        ProfilerActivity,
+        schedule,
+        tensorboard_trace_handler,
+    )
 except Exception:
     torch = None
 
@@ -31,11 +36,13 @@ def _ensure_profiles_dir() -> Path:
     return p
 
 
-def run_cpu_profile(query_paths, index_path, mapping_path, k_clip=20, top_k=5, sort="cumulative"):
+def run_cpu_profile(
+    query_paths, index_path, mapping_path, k_clip=20, top_k=5, sort="cumulative"
+):
     out_dir = _ensure_profiles_dir()
     ts = time.strftime("%Y%m%d_%H%M%S")
     prof_path = out_dir / f"cpu_{ts}.prof"
-    txt_path  = out_dir / f"cpu_{ts}.txt"
+    txt_path = out_dir / f"cpu_{ts}.txt"
 
     def target():
         return combined_similarity_search(
@@ -43,7 +50,7 @@ def run_cpu_profile(query_paths, index_path, mapping_path, k_clip=20, top_k=5, s
             clip_index_path=index_path,
             clip_mapping_path=mapping_path,
             k_clip=k_clip,
-            top_k_result=top_k
+            top_k_result=top_k,
         )
 
     pr = cProfile.Profile()
@@ -61,7 +68,9 @@ def run_cpu_profile(query_paths, index_path, mapping_path, k_clip=20, top_k=5, s
     return results, prof_path, txt_path
 
 
-def run_mem_profile(query_paths, index_path, mapping_path, k_clip=20, top_k=5, limit=30):
+def run_mem_profile(
+    query_paths, index_path, mapping_path, k_clip=20, top_k=5, limit=30
+):
     if tracemalloc is None:
         raise RuntimeError("tracemalloc not available in this Python build")
 
@@ -75,23 +84,30 @@ def run_mem_profile(query_paths, index_path, mapping_path, k_clip=20, top_k=5, l
         clip_index_path=index_path,
         clip_mapping_path=mapping_path,
         k_clip=k_clip,
-        top_k_result=top_k
+        top_k_result=top_k,
     )
     snapshot = tracemalloc.take_snapshot()
-    top_stats = snapshot.statistics('lineno')
+    top_stats = snapshot.statistics("lineno")
 
     with open(txt_path, "w") as f:
         f.write(f"Top {limit} memory consumers:\n")
         for stat in top_stats[:limit]:
             f.write(str(stat) + "\n")
         current, peak = tracemalloc.get_traced_memory()
-        f.write(f"\nCurrent: {current/1e6:.2f} MB, Peak: {peak/1e6:.2f} MB\n")
+        f.write(f"\nCurrent: {current / 1e6:.2f} MB, Peak: {peak / 1e6:.2f} MB\n")
 
     tracemalloc.stop()
     return results, txt_path
 
 
-def run_torch_profile(query_paths, index_path, mapping_path, k_clip=20, top_k=5, trace_dir="profiles/torch"):
+def run_torch_profile(
+    query_paths,
+    index_path,
+    mapping_path,
+    k_clip=20,
+    top_k=5,
+    trace_dir="profiles/torch",
+):
     if torch is None:
         raise RuntimeError("torch not available")
 
@@ -118,7 +134,7 @@ def run_torch_profile(query_paths, index_path, mapping_path, k_clip=20, top_k=5,
             clip_index_path=index_path,
             clip_mapping_path=mapping_path,
             k_clip=k_clip,
-            top_k_result=top_k
+            top_k_result=top_k,
         )
         for _ in range(6):
             prof.step()
@@ -133,13 +149,19 @@ def run_torch_profile(query_paths, index_path, mapping_path, k_clip=20, top_k=5,
 
 def parse_args():
     ap = argparse.ArgumentParser(description="Profile combined_similarity_search.")
-    ap.add_argument("--query", "-q", nargs="+", required=True, help="One or more query image paths")
+    ap.add_argument(
+        "--query", "-q", nargs="+", required=True, help="One or more query image paths"
+    )
     ap.add_argument("--index", "-i", required=True, help="clip_index.ann path")
     ap.add_argument("--mapping", "-m", required=True, help="index_to_id.json path")
     ap.add_argument("--k-clip", type=int, default=20)
     ap.add_argument("--top-k", type=int, default=5)
     ap.add_argument("--mode", choices=["cpu", "mem", "torch"], default="cpu")
-    ap.add_argument("--sort", default="cumulative", help="cProfile sort (time, cumulative, tottime, ...)")
+    ap.add_argument(
+        "--sort",
+        default="cumulative",
+        help="cProfile sort (time, cumulative, tottime, ...)",
+    )
     return ap.parse_args()
 
 
@@ -149,7 +171,12 @@ def main():
 
     if args.mode == "cpu":
         results, prof_path, txt_path = run_cpu_profile(
-            query, args.index, args.mapping, k_clip=args.k_clip, top_k=args.top_k, sort=args.sort
+            query,
+            args.index,
+            args.mapping,
+            k_clip=args.k_clip,
+            top_k=args.top_k,
+            sort=args.sort,
         )
         print(f"[CPU] .prof: {prof_path}")
         print(f"[CPU] Top stats: {txt_path}")
@@ -171,7 +198,7 @@ def main():
     else:
         print(f"Query: {query}")
     print("Top results:")
-    for p, s in (results or [])[:args.top_k]:
+    for p, s in (results or [])[: args.top_k]:
         print(f"  {p}  {s:.4f}")
 
 

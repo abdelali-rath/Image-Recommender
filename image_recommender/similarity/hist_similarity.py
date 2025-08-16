@@ -5,7 +5,7 @@ from PIL import Image
 def compute_histogram(image: Image.Image, bins=8) -> np.ndarray:
     """
     Computes a normalized RGB histogram for the given PIL image.
-    
+
     Args:
         image (PIL.Image): The input image (should be RGB)
         bins (int): Number of bins per channel
@@ -21,7 +21,7 @@ def compute_histogram(image: Image.Image, bins=8) -> np.ndarray:
             image_array[:, :, channel],
             bins=bins,
             range=(0, 256),
-            density=True  # normalize
+            density=True,  # normalize
         )
         histogram.extend(hist)
 
@@ -31,7 +31,7 @@ def compute_histogram(image: Image.Image, bins=8) -> np.ndarray:
 def image_color_similarity(img1: Image.Image, img2: Image.Image, bins=8) -> float:
     """
     Compares two images based on their color histograms using L2 distance.
-    
+
     Args:
         img1, img2 (PIL.Image): RGB images to compare
         bins (int): Number of bins per channel
