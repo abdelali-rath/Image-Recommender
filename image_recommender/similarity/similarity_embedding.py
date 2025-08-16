@@ -67,3 +67,14 @@ def query_similar(image: Image.Image, index: AnnoyIndex, top_k=5) -> list:
     """
     embedding = compute_clip_embedding(image)
     return index.get_nns_by_vector(embedding.tolist(), top_k, include_distances=True)
+
+# Cache for CLIP model
+_model_cache = {}
+_preprocess_cache = {}
+
+def get_clip_model():
+    """Singleton pattern for the CLIP model"""
+    if 'model' not in _model_cache:
+        _model_cache['model'], _model_cache['preprocess'] = clip.load("ViT-B/32", device=device)
+        _model_cache['model'].eval()
+    return _model_cache['model'], _model_cache['preprocess']
