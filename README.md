@@ -1,6 +1,6 @@
 # Image Recommender
 
-<img width="100" height="100" alt="Image Recommender Logo" src="image_recommender/assets/logo.png" />
+<img width="200" height="200" alt="Image Recommender Logo" src="image_recommender/assets/logo.png" />
 
 ## DAISY course 4th semester "Big Data Engineering"
 
