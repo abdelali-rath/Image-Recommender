@@ -33,7 +33,7 @@ def time_cached_getter(repeats: int, device: str):
     times = []
     for _ in range(repeats):
         t0 = time.perf_counter()
-        model, preprocess = get_clip_model()
+        get_clip_model()
         _sync_if_cuda(device)
         times.append(time.perf_counter() - t0)
     return times
@@ -111,11 +111,8 @@ def main():
         mem_after_cached_one = torch.cuda.memory_allocated()
         m2, _ = get_clip_model()
         mem_after_cached_two = torch.cuda.memory_allocated()
-
-        print(f"GPU mem (bytes): start={mem0}, "
-              f"after 3 fresh loads={mem_after_three_fresh}, "
-              f"after cleanup={mem_after_cleanup}, "
-              f"cached first={mem_after_cached_one}, "
+        print(f"GPU mem (bytes): start={mem0}, after 3 fresh loads={mem_after_three_fresh}, "
+              f"after cleanup={mem_after_cleanup}, cached first={mem_after_cached_one}, "
               f"cached second={mem_after_cached_two}")
 
 if __name__ == "__main__":
